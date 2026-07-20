@@ -1,0 +1,35 @@
+---
+title: Agents SDK reduces MCP tool schema conversion
+description: Agents SDK caches converted MCP schemas and lets Think skip direct tool exposure when Code Mode or another mechanism exposes the tools.
+products:
+  - agents
+  - workers
+date: 2026-07-20
+---
+
+import { PackageManagers, TypeScriptExample } from "~/components";
+
+Agents SDK MCP clients now reuse converted input and output schemas while a live connection keeps the same tool catalog. This avoids converting every MCP JSON Schema to Zod again for each model turn.
+
+`@cloudflare/think` also adds `includeMcpTools`. Set it to `false` when you expose MCP tools through Code Mode or another mechanism outside Think's automatic tool set:
+
+<TypeScriptExample>
+
+```ts
+import { Think } from "@cloudflare/think";
+
+export class MyAgent extends Think<Env> {
+	includeMcpTools = false;
+	waitForMcpConnections = true;
+}
+```
+
+</TypeScriptExample>
+
+This setting skips Think's automatic `getAITools()` call. MCP registration, restoration, discovery, raw catalog access, direct calls, and Code Mode connectors continue to work.
+
+Use [`listTools()`](/agents/model-context-protocol/apis/client-api/#thismcplisttools) when you only need the raw MCP catalog. For connector setup, refer to [Use MCP tools with Code Mode](/agents/tools/codemode/mcp/).
+
+## Upgrade
+
+<PackageManagers pkg="agents@latest @cloudflare/think@latest" />
